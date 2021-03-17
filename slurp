@@ -5,25 +5,47 @@ import argparse
 import itertools
 import sys
 import submitit
+import re
 
-def get_command_list(input):
-    words = input.split(" ")
-    shared_command = ' '.join(filter(lambda w: '=' not in w, words))
-    sweep_dict = {}
-    for word in words:
-        if '=' in word:
-            assert len(word.split('=')) == 2
-            arg_name = word.split('=')[0]
-            value_list = word.split('=')[1].split(',')
-            sweep_dict[arg_name] = value_list
-    arg_assignment_sweep_list = []
-    for k,v in sweep_dict.items():
-        arg_assignment_sweep_list.append([f"{k}={val}" for val in v])
+def expand_single_multiword(command):
+    word_list = command.split(" ")
+    multiword_index = [is_multiword(w) for w in word_list].index(True)
+    multiword = word_list[multiword_index]
+    multiword_options = multiword[1:-1].split(",")
+    out = []
+    for option in multiword_options:
+        expanded_command_word_list = word_list
+        expanded_command_word_list[multiword_index] = option
+        expanded_command = " ".join(expanded_command_word_list)
+        out.append(expanded_command)
+    return out
 
-    command_list = []
-    for element in itertools.product(*arg_assignment_sweep_list):
-        command_list.append(shared_command + " " + " ".join(element))
-    return command_list
+def is_multiword(word):
+    #a multiword is enclosed by []
+    enclosed_left = word[0]=='['
+    enclosed_right = word[-1]==']'
+    return enclosed_left and enclosed_right
+
+def is_multicommand(command):
+    word_list = command.split(" ")
+    return any(map(is_multiword, word_list))
+
+def expand_command_list(command_list):
+    if not any(map(is_multicommand,command_list)):
+        return command_list
+    else:
+        index = [is_multicommand(c) for c in command_list].index(True)
+        multicommand = command_list[index]
+        new = expand_single_multiword(multicommand)
+        expanded = command_list[:index] + new + command_list[index+1:]
+        return expand_command_list(expanded)
+
+def get_command_list(command):
+    command = remove_whitespace_inside_brackets(command)
+    return expand_command_list([command])
+
+def remove_whitespace_inside_brackets(str):
+    return re.sub(r'\[.*?\]', lambda x: ''.join(x.group(0).split()), str)
 
 #we separate the cli args into slurp arguments and the command.
 #for now, the first non-flag argument indicates the command.
