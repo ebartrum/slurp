@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 
-import submitit
 import os
 import argparse
 import itertools
+import sys
+import submitit
 
 def get_command_list(input):
     words = input.split(" ")
@@ -24,18 +25,21 @@ def get_command_list(input):
         command_list.append(shared_command + " " + " ".join(element))
     return command_list
 
-parser = argparse.ArgumentParser()
-parser.add_argument("command", type=str)
-parser.add_argument("-d", "--dev", help="dev run", action="store_true")
-args = parser.parse_args()
-if args.dev:
+#we separate the cli args into slurp arguments and the command.
+#for now, the first non-flag argument indicates the command.
+args = sys.argv[1:]
+command_start_index = [a[0] != '-' for a in args].index(True)
+slurp_args = args[:command_start_index]
+command = " ".join(args[command_start_index:])
+
+if "-d" in slurp_args:
     partition="devel"
     time=60
 else:
     partition="small"
     time=60*24*3
 
-command_list = get_command_list(args.command)
+command_list = get_command_list(command)
 print(f"Submitting job array with following {len(command_list)} expts")
 for com in command_list:
     print(com)
