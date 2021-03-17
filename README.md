@@ -1,6 +1,6 @@
-A tool for Slurm job submission (Work in progress)
+**A tool for Slurm job submission** (Work in progress)
 
-Example usage: `slurp ls` will submit a single job on the default node, with command `ls`.
+Example usage: `slurp ls` will submit a single job on the default node, with command `ls`
 
 Adding the -d flag makes this a devel node job: `slurp -d ls`
 
