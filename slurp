@@ -57,9 +57,15 @@ command = " ".join(args[command_start_index:])
 if "-d" in slurp_args:
     partition="devel"
     time=60
+    num_gpus=1
+elif "-b" in slurp_args:
+    partition="big"
+    time=60*24
+    num_gpus=8
 else:
     partition="small"
     time=60*24*3
+    num_gpus=1
 
 command_list = get_command_list(command)
 print(f"Submitting job array with following {len(command_list)} expts")
@@ -69,7 +75,7 @@ print("-------------------------------------------")
 
 executor = submitit.AutoExecutor(folder=".submitit_logs")
 executor.update_parameters(timeout_min=time, slurm_partition=partition,
-        slurm_gres="gpu:1")
+        slurm_gres=f"gpu:{num_gpus}")
 
 jobs = []
 with executor.batch():
