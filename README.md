@@ -3,6 +3,7 @@
 Example usage: `slurp ls` will submit a single job on the default node, with command `ls`
 
 Adding the -d flag makes this a devel node job: `slurp -d ls`
+Adding the -d flag makes this a big node job: `slurp -b ls`
 
 Job arrays can be submitted by specifying options in square brackets:
 
