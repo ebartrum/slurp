@@ -61,7 +61,7 @@ if "-d" in slurp_args:
 elif "-b" in slurp_args:
     partition="big"
     time=60*24
-    num_gpus=8
+    num_gpus=4
 else:
     partition="small"
     time=60*24*3
