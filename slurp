@@ -75,7 +75,8 @@ print("-------------------------------------------")
 
 executor = submitit.AutoExecutor(folder=".submitit_logs")
 executor.update_parameters(timeout_min=time, slurm_partition=partition,
-        slurm_gres=f"gpu:{num_gpus}")
+        slurm_gres=f"gpu:{num_gpus}", cpus_per_task=8, nodes=1,
+        slurm_ntasks_per_node=1)
 
 jobs = []
 with executor.batch():
