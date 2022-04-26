@@ -58,14 +58,17 @@ if "-d" in slurp_args:
     partition="devel"
     time=60
     num_gpus=1
+    cpus_per_task=2
 elif "-b" in slurp_args:
     partition="big"
     time=60*24
     num_gpus=4
+    cpus_per_task=32
 else:
     partition="small"
     time=60*24*3
     num_gpus=1
+    cpus_per_task=8
 
 command_list = get_command_list(command)
 print(f"Submitting job array with following {len(command_list)} expts")
@@ -75,7 +78,7 @@ print("-------------------------------------------")
 
 executor = submitit.AutoExecutor(folder=".submitit_logs")
 executor.update_parameters(timeout_min=time, slurm_partition=partition,
-        slurm_gres=f"gpu:{num_gpus}", cpus_per_task=8, nodes=1,
+        slurm_gres=f"gpu:{num_gpus}", cpus_per_task=cpus_per_task, nodes=1,
         slurm_ntasks_per_node=1)
 
 jobs = []
